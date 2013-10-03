@@ -1,0 +1,4 @@
+- Get SIGHUP to reload configuration
+- ability to set a relative directory to work from
+- daemonisation
+- cmd args
