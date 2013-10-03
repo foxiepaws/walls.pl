@@ -1,6 +1,9 @@
 # walls.pl
-#### a simple wallpaper setting program for use with X11
+#### a wallpaper setting/rotating program for use with tiling window managers
 
+Walls was developed to make it easier to set and rotate my wallpapers from 
+dwm, it can work in any situation where you need to set the X11 root window
+as it uses feh to set the actual background.
 
 ## Requirements
 
