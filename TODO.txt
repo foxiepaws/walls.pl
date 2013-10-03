@@ -1,14 +1,14 @@
 # To Do
-- [ ] random image selection in single #3
-- [ ] sranddir, randdir, seqdir #5 
-- [ ] loading (and caching image  from) from uris #4
+- [    ] loading (and caching image  from) from uris #4
+- [    ] cmd args #2
 
 # In Progress
-- [ ] cmd args #2
+- [  0%] random image selection in single #3
+- [ 66%] sranddir, randdir, seqdir #5 
 
 # Done
-- [X] Get SIGHUP to reload configuration
-- [X] daemonisation
-- [X] ability to set a relative directory to work from
-- [X] bug: daemonisation #1
-- [X] Daemon Signal based control and utility
+- [100%] Get SIGHUP to reload configuration
+- [100%] daemonisation
+- [100%] ability to set a relative directory to work from
+- [100%] bug: daemonisation #1
+- [100%] Daemon Signal based control and utility

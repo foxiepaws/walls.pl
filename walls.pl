@@ -23,7 +23,6 @@ use Data::Dumper;
 
 our $config = YAML::LoadFile($ENV{HOME}."/.walls.conf");
 
-
 our %formats = (
     tiled    => "--no-fehbg --bg-tile",
     centered => "--no-fehbg --bg-center",
@@ -70,6 +69,15 @@ sub debugsay {
     print shift."\n" if ($debug);
 }
 
+sub dir2arr {
+    my $dir = shift;
+    our @arr;
+    opendir (my $dh, $dir) or return undef;
+    @arr = grep { /\.(jpe?g|png|gif)/ } readdir $dh;
+    close $dh;
+    return @arr;
+}
+
 sub mysleep {
     my $time = shift;
     
@@ -114,8 +122,21 @@ sub seq {
         }
     })->() while (1 and !$RELOADCONF) ;
 }
+
 sub seqdir {
-    die "not yet implemented";
+    my @images = dir2arr($config->{dir});
+    (sub {
+        foreach(@images) {
+            my $image = $config->{dir} . "/$_";
+            my $style = defined($config->{style}) ? 
+                $config->{style} 
+                : "centered";
+
+            system "$bgcommand ".$formats{$style}." $image";
+            mysleep($config->{sleep});
+        }
+    })->() while (1 and !$RELOADCONF) ;
+
 }
 sub random {
     my $walls = $config->{walls};
@@ -132,8 +153,19 @@ sub random {
         mysleep($config->{sleep});
     }
 }
+
 sub randir {
-    die "not yet implemented";
+    my @images = dir2arr($config->{dir});
+    while ( 1 and !$RELOADCONF ) {
+        my $select = floor(rand(scalar @images));
+        my $image = $config->{dir} . "/". $images[$select];
+        my $style = defined($config->{style}) ? 
+            $config->{style} 
+            : "centered";
+
+        system "$bgcommand ".$formats{$style}." $image";
+        mysleep($config->{sleep});
+    }
 }
 
 daemonise() if ($config->{background} eq 1);
