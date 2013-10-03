@@ -95,16 +95,16 @@ sub mysleep {
 
 sub single {
     my $image;
-    $image = $config->{walls}[$config->{select}]->{file} if ($config->{select} > -1);
-    $image = $config->{walls}[(floor(rand(scalar @{$config->{walls}})))] if ($config->{select} == -1);
-
-    $image = ( defined($config->{dir}) ? $config->{dir} : $ENV{HOME} ) . "/$image" if ($image =~ /^[^~\/]/);
-    my $style = defined($config->{walls}[$config->{select}]->{style}) ?
-        $config->{walls}[$config->{select}]->{style} 
+    $imageh = $config->{walls}[$config->{select}] if ($config->{select} > -1);
+    $imageh = $config->{walls}[(floor(rand(scalar @{$config->{walls}})))] if ($config->{select} == -1);
+    print Dumper $imageh;
+    $image = $imageh->{file};
+    $image = ( defined($config->{dir}) ? $config->{dir} : $ENV{HOME} ) . "/".$imageh->{file} if ($imageh->{file} =~ /^[^~\/]/);
+    my $style = defined($imageh->{style}) ?
+        $imageh->{style} 
         : defined($config->{style}) ? 
             $config->{style} 
             : "centered";
-
     system "$bgcommand ".$formats{$style}." $image"
 }
 
