@@ -32,14 +32,14 @@ our %formats = (
 );
 
 our $bgcommand = "feh";
-
+our $debug = 0;
 our $RELOADCONF = 0;
 our $PAUSED = 0; 
 our $NEXT = 0;
-$SIG{HUP} = (sub { print "reloading config\n"; $RELOADCONF = 1 });
-$SIG{TERM} = (sub { print "quitting!\n"; unlink $ENV{HOME}."/.walls.pid"; exit 0; });
-$SIG{USR1} = (sub { if (!$PAUSED) { print "pausing!\n"; $PAUSED = 1 } else { print "unpausing!\n";$PAUSED = 0 } });
-$SIG{USR2} = (sub { print "trying to skip to next image!\n";$NEXT = 1 });
+$SIG{HUP} = (sub { debugsay("reloading config"); $RELOADCONF = 1 });
+$SIG{TERM} = (sub { debugsay("quitting!"); unlink $ENV{HOME}."/.walls.pid"; exit 0; });
+$SIG{USR1} = (sub { if (!$PAUSED) { debugsay( "pausing!"); $PAUSED = 1 } else { debugsay( "unpausing!");$PAUSED = 0 } });
+$SIG{USR2} = (sub { debugsay("trying to skip to next image!");$NEXT = 1 });
 
 ## modified from Daemonise.pm by Andy Dixon, <ajdixon@cpan.org>
 sub daemonise {
@@ -49,9 +49,8 @@ sub daemonise {
     if (defined($fho)) {
         my $opid = readline $fh;
         close $fh; 
-        print $opid;
+        debugsay("pid found: $opid");
         if (-d "/proc/$opid/") {
-            print "it fuckin exists";
             `kill $opid`;
         }
     }
@@ -66,6 +65,10 @@ sub daemonise {
     setsid                    or die "Can't start a new session: $!";    
 }
 ####
+
+sub debugsay {
+    print shift."\n" if ($debug);
+}
 
 sub mysleep {
     my $time = shift;
