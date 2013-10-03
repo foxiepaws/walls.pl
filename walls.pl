@@ -32,6 +32,22 @@ our $bgcommand = "feh";
 our $RELOADCONF = 0;
 $SIG{HUP} = (sub { $RELOADCONF = 1 });
 
+
+
+## from Daemonise.pm by Andy Dixon, <ajdixon@cpan.org>
+sub daemonise {
+    chdir '/'                 or die "Can't chdir to /: $!";
+    umask 0;
+    open STDIN, '/dev/null'   or die "Can't read /dev/null: $!";
+    #open STDOUT, '>/dev/null' or die "Can't write to /dev/null: $!";
+    open STDERR, '>/dev/null' or die "Can't write to /dev/null: $!";    
+    defined(my $pid = fork)   or die "Can't fork: $!";
+    exit if $pid;
+    setsid                    or die "Can't start a new session: $!";    
+}
+####
+
+
 sub single {
     my $image = $config->{walls}[$config->{select}]->{file};
     my $style = defined($config->{walls}[$config->{select}]->{style}) ?
@@ -80,6 +96,8 @@ sub randir {
     die "not yet implemented";
 }
 
+
+daemonise();
 # our pidfile
 open my $fh, ">", $ENV{HOME}."/.walls.pid";
 print $fh $$;
@@ -95,6 +113,8 @@ while ( 1 ) {
         random() when "rand";
         randir() when "randdir"
     }
+    # prevent feh from being called every 30 seconds if on single.
+    (sub {})->() while(!$RELOADCONF);
 }
 
 
