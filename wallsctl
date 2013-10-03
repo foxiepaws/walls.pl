@@ -1,0 +1,37 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use utf8;
+use feature 'switch';
+
+my %signals = (
+ pause => 'USR1',
+ next => 'USR2',
+ reload => 'HUP',
+);
+
+open my $fh, "<", $ENV{HOME}."/.walls.pid" or die ($! . ", Maybe walls.pl isn't running?");
+my $wpid = readline $fh;
+close $fh;
+
+my $command = shift;
+my $force = shift;
+my $reallyquit = 0;
+if (defined($force)) {
+    $reallyquit= 1 if ($force eq "-f");
+}
+if (defined($command)) {
+    given ($command) {
+        `kill -USR1 $wpid` when "pause";
+        `kill -USR2 $wpid` when "next";
+        `kill -HUP $wpid`  when "reload"; 
+        when ("quit") {
+            `kill -TERM $wpid` and return if ($reallyquit) ;
+            print "type `wallsctl quit -f` to actually quit\n";
+        }
+    }
+} else {
+    print "USAGE: wallsctl [pause|next|reload|quit] [-f]\n";
+}
+
+# vim: set ts=4 sw=4 tw=0 et syntax=perl :

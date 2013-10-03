@@ -34,12 +34,28 @@ our %formats = (
 our $bgcommand = "feh";
 
 our $RELOADCONF = 0;
-$SIG{HUP} = (sub { $RELOADCONF = 1 });
+our $PAUSED = 0; 
+our $NEXT = 0;
+$SIG{HUP} = (sub { print "reloading config\n"; $RELOADCONF = 1 });
+$SIG{TERM} = (sub { print "quitting!\n"; unlink $ENV{HOME}."/.walls.pid"; exit 0; });
+$SIG{USR1} = (sub { if (!$PAUSED) { print "pausing!\n"; $PAUSED = 1 } else { print "unpausing!\n";$PAUSED = 0 } });
+$SIG{USR2} = (sub { print "trying to skip to next image!\n";$NEXT = 1 });
 
-
-
-## from Daemonise.pm by Andy Dixon, <ajdixon@cpan.org>
+## modified from Daemonise.pm by Andy Dixon, <ajdixon@cpan.org>
 sub daemonise {
+
+    # 
+    open my $fh, '<', $ENV{HOME} . "/.walls.pid" and $fho = 1;
+    if (defined($fho)) {
+        my $opid = readline $fh;
+        close $fh; 
+        print $opid;
+        if (-d "/proc/$opid/") {
+            print "it fuckin exists";
+            `kill $opid`;
+        }
+    }
+
     chdir '/'                 or die "Can't chdir to /: $!";
     umask 0;
     open STDIN, '/dev/null'   or die "Can't read /dev/null: $!";
@@ -51,6 +67,20 @@ sub daemonise {
 }
 ####
 
+sub mysleep {
+    my $time = shift;
+    
+    # handle pausing
+    for (my $i = 0; $i < $time; $i++) {
+        if ($NEXT == 1) {
+            $NEXT = 0;
+            return;
+        } else {
+            sleep 1;
+        }
+    }
+    (sub {})->() while ($PAUSED);
+}
 
 sub single {
     my $image = $config->{walls}[$config->{select}]->{file};
@@ -77,7 +107,7 @@ sub seq {
                     : "centered";
 
             system "$bgcommand ".$formats{$style}." $image";
-            sleep($config->{sleep});
+            mysleep($config->{sleep});
         }
     })->() while (1 and !$RELOADCONF) ;
 }
@@ -96,14 +126,17 @@ sub random {
                 $config->{style} 
                 : "centered";
         system "$bgcommand ".$formats{$style}." $image";
-        sleep($config->{sleep});
+        mysleep($config->{sleep});
     }
 }
 sub randir {
     die "not yet implemented";
 }
 
-daemonise() unless ($config->{foreground} eq 1);
+daemonise() if ($config->{background} eq 1);
+
+
+
 # our pidfile
 open my $fh, ">", $ENV{HOME}."/.walls.pid";
 print $fh $$;
