@@ -1,0 +1,22 @@
+# walls.pl configuration reference
+
+# valid modes are currently single, seq, rand
+mode: seq
+# time in seconds we should wait before changing the background in seq and rand
+sleep: 30
+# you can set a default style here 
+style: filled
+# the image to use from walls in single mode (0 indexed)
+select: 1
+# directory for paths not starting with / or ~
+dir: ~/walls
+
+# begin array of wallpapers 
+walls:
+    # a wallpaper that uses the default style from the walls dir
+    - image: one.png
+    # a wallpaper from an Absolute Path with a style 
+    - image: ~/Downloads/two.png
+      style: tiled
+
+# vim: syntax=yaml
