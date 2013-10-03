@@ -29,8 +29,8 @@ our %formats = (
 );
 
 our $bgcommand = "feh";
-our $config = YAML::LoadFile($ENV{HOME}."/.walls.conf");
-
+our $RELOADCONF = 0;
+$SIG{HUP} = (sub { $RELOADCONF = 1 });
 
 sub single {
     my $image = $config->{walls}[$config->{select}]->{file};
@@ -57,16 +57,15 @@ sub seq {
             system "$bgcommand ".$formats{$style}." $image";
             sleep($config->{sleep});
         }
-    })->() while (1) ;
+    })->() while (1 and !$RELOADCONF) ;
 }
 sub seqdir {
     die "not yet implemented";
 }
 sub random {
     my $walls = $config->{walls};
-    while ( 1 ) {
+    while ( 1 and !$RELOADCONF ) {
         my $select = floor(rand(scalar @{$walls}));
-        print "select = $select\n";
         my $image = $config->{walls}[$select]->{file};
         my $style = defined($config->{walls}[$select]->{style}) ?
             $config->{walls}[$select]->{style} 
@@ -81,11 +80,22 @@ sub randir {
     die "not yet implemented";
 }
 
-given ($config->{mode}) {
-    single() when "single";
-    seq() when "seq";
-    seqdir() when "seqdir";
-    random() when "rand";
-    randir() when "randdir"
+# our pidfile
+open my $fh, ">", $ENV{HOME}."/.walls.pid";
+print $fh $$;
+close $fh;
+
+while ( 1 ) {
+    our $config = YAML::LoadFile($ENV{HOME}."/.walls.conf");
+    $RELOADCONF = 0;
+    given ($config->{mode}) {
+        single() when "single";
+        seq() when "seq";
+        seqdir() when "seqdir";
+        random() when "rand";
+        randir() when "randdir"
+    }
 }
+
+
 1;

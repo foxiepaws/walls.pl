@@ -1,4 +1,9 @@
-- Get SIGHUP to reload configuration
+# To Do
+- cmd args
+
+# In Progress
 - ability to set a relative directory to work from
 - daemonisation
-- cmd args
+
+# Done
+- Get SIGHUP to reload configuration
