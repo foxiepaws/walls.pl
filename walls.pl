@@ -9,7 +9,6 @@
 use YAML;
 use feature "switch";
 use POSIX;
-use Data::Dumper;
 ## example config ########
 #mode: single
 #select: 0
@@ -97,7 +96,6 @@ sub single {
     my $image;
     $imageh = $config->{walls}[$config->{select}] if ($config->{select} > -1);
     $imageh = $config->{walls}[(floor(rand(scalar @{$config->{walls}})))] if ($config->{select} == -1);
-    print Dumper $imageh;
     $image = $imageh->{file};
     $image = ( defined($config->{dir}) ? $config->{dir} : $ENV{HOME} ) . "/".$imageh->{file} if ($imageh->{file} =~ /^[^~\/]/);
     my $style = defined($imageh->{style}) ?
