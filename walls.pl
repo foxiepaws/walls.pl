@@ -21,6 +21,9 @@ use Data::Dumper;
 ##########################
 
 
+our $config = YAML::LoadFile($ENV{HOME}."/.walls.conf");
+
+
 our %formats = (
     tiled    => "--no-fehbg --bg-tile",
     centered => "--no-fehbg --bg-center",
@@ -29,6 +32,7 @@ our %formats = (
 );
 
 our $bgcommand = "feh";
+
 our $RELOADCONF = 0;
 $SIG{HUP} = (sub { $RELOADCONF = 1 });
 
@@ -50,6 +54,7 @@ sub daemonise {
 
 sub single {
     my $image = $config->{walls}[$config->{select}]->{file};
+    $image = ( defined($config->{dir}) ? $config->{dir} : $ENV{HOME} ) . "/$image" if ($image =~ /^[^~\/]/);
     my $style = defined($config->{walls}[$config->{select}]->{style}) ?
         $config->{walls}[$config->{select}]->{style} 
         : defined($config->{style}) ? 
@@ -64,6 +69,7 @@ sub seq {
     (sub {
         foreach(@{$config->{walls}}) {
             my $image = $_->{file};
+            $image = ( defined($config->{dir}) ? $config->{dir} : $ENV{HOME} ) . "/$image" if ($image =~ /^[^~\/]/);
             my $style = defined($_->{style}) ?
                 $_->{style} 
                 : defined($config->{style}) ? 
@@ -83,6 +89,7 @@ sub random {
     while ( 1 and !$RELOADCONF ) {
         my $select = floor(rand(scalar @{$walls}));
         my $image = $config->{walls}[$select]->{file};
+        $image = ( defined($config->{dir}) ? $config->{dir} : $ENV{HOME} ) . "/$image" if ($image =~ /^[^~\/]/);
         my $style = defined($config->{walls}[$select]->{style}) ?
             $config->{walls}[$select]->{style} 
             : defined($config->{style}) ? 
@@ -96,15 +103,14 @@ sub randir {
     die "not yet implemented";
 }
 
-
-daemonise();
+daemonise() unless ($config->{foreground} eq 1);
 # our pidfile
 open my $fh, ">", $ENV{HOME}."/.walls.pid";
 print $fh $$;
 close $fh;
 
 while ( 1 ) {
-    our $config = YAML::LoadFile($ENV{HOME}."/.walls.conf");
+    $config = YAML::LoadFile($ENV{HOME}."/.walls.conf");
     $RELOADCONF = 0;
     given ($config->{mode}) {
         single() when "single";

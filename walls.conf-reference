@@ -10,7 +10,8 @@ style: filled
 select: 1
 # directory for paths not starting with / or ~
 dir: ~/walls
-
+# foreground mode, set to 1 to enable running in foreground
+foreground: 1
 # begin array of wallpapers 
 walls:
     # a wallpaper that uses the default style from the walls dir
