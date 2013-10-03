@@ -21,7 +21,7 @@ Walls offers a simple control scheme using unix signals
 - SIGUSR1 - Pause on Current Image
 - SIGUSR2 - Switch to Next Image
 
-included is also a script for controlling walls called wallsctl.
+included is also a script for controlling walls called `wallsctl`.
 
 - `wallsctl reload` - Reload the config
 - `wallsctl quit -f` - Quit Safely
