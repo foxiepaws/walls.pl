@@ -3,8 +3,7 @@
 - [    ] cmd args #2
 
 # In Progress
-- [  0%] random image selection in single #3
-- [ 66%] sranddir, randdir, seqdir #5 
+- [ 50%] random image selection in single #3
 
 # Done
 - [100%] Get SIGHUP to reload configuration
@@ -12,3 +11,5 @@
 - [100%] ability to set a relative directory to work from
 - [100%] bug: daemonisation #1
 - [100%] Daemon Signal based control and utility
+- [100%] randdir, seqdir #5 
+

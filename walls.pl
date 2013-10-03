@@ -94,7 +94,10 @@ sub mysleep {
 }
 
 sub single {
-    my $image = $config->{walls}[$config->{select}]->{file};
+    my $image;
+    $image = $config->{walls}[$config->{select}]->{file} if ($config->{select} > -1);
+    $image = $config->{walls}[(floor(rand(scalar @{$config->{walls}})))] if ($config->{select} == -1);
+
     $image = ( defined($config->{dir}) ? $config->{dir} : $ENV{HOME} ) . "/$image" if ($image =~ /^[^~\/]/);
     my $style = defined($config->{walls}[$config->{select}]->{style}) ?
         $config->{walls}[$config->{select}]->{style} 
@@ -167,6 +170,7 @@ sub randir {
         mysleep($config->{sleep});
     }
 }
+
 
 daemonise() if ($config->{background} eq 1);
 
