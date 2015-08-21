@@ -190,23 +190,58 @@ sub seq {
     }
 }
 
-
 sub seqdir {
-    # FIXME: once again, what was i thinking
     my @images = dir2arr($config->{dir});
-    (sub {
-        foreach(@images) {
-            my $image = $config->{dir} . "/$_";
-            my $style = defined($config->{style}) ? 
-                $config->{style} 
-                : "centered";
-            debugsay("$bgcommand ".$formats{$style}." $image");
-            system "$bgcommand ".$formats{$style}." $image";
+    my $style;
+    if (defined($config->{style})) {
+        $style = $config->{style};
+    } else {
+        $style = "centered";
+    }
+    while (!$RELOADCONF) {
+        foreach my $image (@images) {
+            
+            
+            my $path;
+            for ($image) {
+                do {
+                    # image isn't an absolute path nor does it point to
+                    # at the home directory, and config has a dir setting
+                    $path = fix_path $config->{dir} . "/" . $_;
+                } when /^[^~\/]/ and defined($config->{dir});
+                default {
+                    $path = fix_path $_;
+                }
+            }
+            # actually try to display the image
+            for ($path) {
+                system "${bgcommand} ${formats{$style}} ${_}" when -f;
+                default {
+                    carp "file doesn't actually exist";
+                }
+            }
             mysleep($config->{sleep});
+            last if $RELOADCONF;
         }
-    })->() while (1 and !$RELOADCONF) ;
-
+    }
 }
+
+#sub seqdir {
+#    # FIXME: once again, what was i thinking
+#    my @images = dir2arr($config->{dir});
+#    (sub {
+#        foreach(@images) {
+#            my $image = $config->{dir} . "/$_";
+#            my $style = defined($config->{style}) ? 
+#                $config->{style} 
+#                : "centered";
+#            debugsay("$bgcommand ".$formats{$style}." $image");
+#            system "$bgcommand ".$formats{$style}." $image";
+#            mysleep($config->{sleep});
+#        }
+#    })->() while (1 and !$RELOADCONF) ;
+#
+#}
 sub random {
     # FIXME: This is /so bad/ probably the worst perl I've ever written.
     my $walls = $config->{walls};
