@@ -147,23 +147,44 @@ sub single {
 }
 
 sub seq {
-    # run sequentually though the walls array.
-    # FIXME: what was I Even thinking.
-    (sub {
-        foreach(@{$config->{walls}}) {
-            my $image = $_->{file};
-            $image = ( defined($config->{dir}) ? $config->{dir} : $ENV{HOME} ) . "/$image" if ($image =~ /^[^~\/]/);
-            my $style = defined($_->{style}) ?
-                $_->{style} 
-                : defined($config->{style}) ? 
-                    $config->{style} 
-                    : "centered";
-
-            system "$bgcommand ".$formats{$style}." $image";
+    # collect walls from config file into @walls now to prevent constant redefining
+    my @walls = @{$config->{walls}};
+    # loop until reload conf is set
+    while (!$RELOADCONF) {
+        foreach my $image (@walls) {
+            my $style;
+            if (defined($image->{style})) {
+                $style = $image->{style};
+            } elsif (defined($config->{style})) {
+                $style = $config->{style};
+            } else {
+                $style = "centered";
+            }
+            # figure out if we need to prepend all files
+            my $path;
+            for ($image->{file}) {
+                do {
+                    # image isn't an absolute path nor does it point to
+                    # at the home directory, and config has a dir setting
+                    $path = fix_path $config->{dir} . "/" . $_;
+                } when /^[^~\/]/ and defined($config->{dir});
+                default {
+                    $path = fix_path $_;
+                }
+            }
+            # actually try to display the image
+            for ($path) {
+                system "${bgcommand} ${formats{$style}} ${_}" when -f;
+                default {
+                    carp "file doesn't actually exist";
+                }
+            }
+            # call special sleep algorithm to handle config reloading, skipping, and pausing.
             mysleep($config->{sleep});
         }
-    })->() while (1 and !$RELOADCONF) ;
+    }
 }
+
 
 sub seqdir {
     # FIXME: once again, what was i thinking
