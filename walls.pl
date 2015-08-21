@@ -51,7 +51,7 @@ $SIG{USR2} = (sub { debugsay("trying to skip to next image!");$NEXT = 1 });
 ## modified from Daemonise.pm by Andy Dixon, <ajdixon@cpan.org>
 sub daemonise {
 
-    # 
+    my $fho = 0;
     open my $fh, '<', $ENV{HOME} . "/.walls.pid" and $fho = 1;
     if (defined($fho)) {
         my $opid = readline $fh;
@@ -64,12 +64,12 @@ sub daemonise {
 
     chdir '/'                 or die "Can't chdir to /: $!";
     umask 0;
-    open STDIN, '/dev/null'   or die "Can't read /dev/null: $!";
+    open STDIN, '<', '/dev/null'   or die "Can't read /dev/null: $!";
     #open STDOUT, '>/dev/null' or die "Can't write to /dev/null: $!";
-    open STDERR, '>/dev/null' or die "Can't write to /dev/null: $!";    
+    open STDERR, '>', '/dev/null' or die "Can't write to /dev/null: $!";
     defined(my $pid = fork)   or die "Can't fork: $!";
     exit if $pid;
-    setsid                    or die "Can't start a new session: $!";    
+    setsid                    or die "Can't start a new session: $!";
 }
 ####
 
