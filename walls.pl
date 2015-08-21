@@ -1,14 +1,23 @@
 #!/usr/bin/env perl
 
-# 
+# walls.pl
+# Allie Theze
 #
-#
-#
-#
+# This script is a simple wallpaper switcher, designed for use with 
+# tiling window managers like dwm. It was written in 2013 and really
+# needs some work done to it, keep your eyes out for updates as I
+# slowly rewrite it!
 
+
+use strict;
+use warnings;
 use YAML;
 use feature "switch";
+use 5.18.0;
+no warnings "experimental";
 use POSIX;
+use Carp;
+use Data::Dumper;
 ## example config ########
 #mode: single
 #select: 0
