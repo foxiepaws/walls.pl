@@ -184,6 +184,8 @@ sub seq {
             }
             # call special sleep algorithm to handle config reloading, skipping, and pausing.
             mysleep($config->{sleep});
+            # break out if we need to reload
+            last if $RELOADCONF;
         }
     }
 }
