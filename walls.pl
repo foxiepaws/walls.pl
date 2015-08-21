@@ -147,7 +147,8 @@ sub single {
 }
 
 sub seq {
-   # run sequentually though the walls array.
+    # run sequentually though the walls array.
+    # FIXME: what was I Even thinking.
     (sub {
         foreach(@{$config->{walls}}) {
             my $image = $_->{file};
@@ -165,6 +166,7 @@ sub seq {
 }
 
 sub seqdir {
+    # FIXME: once again, what was i thinking
     my @images = dir2arr($config->{dir});
     (sub {
         foreach(@images) {
@@ -172,7 +174,7 @@ sub seqdir {
             my $style = defined($config->{style}) ? 
                 $config->{style} 
                 : "centered";
-
+            debugsay("$bgcommand ".$formats{$style}." $image");
             system "$bgcommand ".$formats{$style}." $image";
             mysleep($config->{sleep});
         }
@@ -180,6 +182,7 @@ sub seqdir {
 
 }
 sub random {
+    # FIXME: This is /so bad/ probably the worst perl I've ever written.
     my $walls = $config->{walls};
     while ( 1 and !$RELOADCONF ) {
         my $select = floor(rand(scalar @{$walls}));
@@ -196,6 +199,7 @@ sub random {
 }
 
 sub randir {
+    # FIXME: Also really bad
     my @images = dir2arr($config->{dir});
     while ( 1 and !$RELOADCONF ) {
         my $select = floor(rand(scalar @images));
