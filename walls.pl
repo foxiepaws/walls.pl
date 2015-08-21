@@ -101,7 +101,6 @@ sub dir2arr {
 
 sub mysleep {
     my $time = shift;
-    
     # handle pausing
     for (my $i = 0; $i < $time; $i++) {
         if ($NEXT == 1) {
@@ -111,21 +110,40 @@ sub mysleep {
             sleep 1;
         }
     }
-    (sub {})->() while ($PAUSED);
+    sleep 1 while ($PAUSED);
 }
 
 sub single {
-    my $image;
-    $imageh = $config->{walls}[$config->{select}] if ($config->{select} > -1);
-    $imageh = $config->{walls}[(floor(rand(scalar @{$config->{walls}})))] if ($config->{select} == -1);
-    $image = $imageh->{file};
-    $image = ( defined($config->{dir}) ? $config->{dir} : $ENV{HOME} ) . "/".$imageh->{file} if ($imageh->{file} =~ /^[^~\/]/);
-    my $style = defined($imageh->{style}) ?
-        $imageh->{style} 
-        : defined($config->{style}) ? 
-            $config->{style} 
-            : "centered";
-    system "$bgcommand ".$formats{$style}." $image"
+    my ($image, $style);
+    for ($config->{select}) {
+        do {
+            # select a specific image from the list of walls based on
+            # the toplevel config var "select". (0 indexed)
+            my @walls = @{$config->{walls}};
+            $image = $walls[$_];
+        } when $_ > -1;
+        default {
+            # randomly select an image from the list of walls.
+            my @walls = @{$config->{walls}};
+            $image = $walls[rand @walls];
+        }
+    }
+    # get which style we are going to use.
+    if (defined($image->{style})) {
+        $style = $image->{style};
+    } elsif (defined($config->{style})) {
+        $style = $config->{style};
+    } else {
+        $style = "centered";
+    }
+    # fix the path using the above fix path implementation, and
+    # display the image if it exists, or warn the user otherwise.
+    for (fix_path $image->{file}) {
+        system "${bgcommand} ${formats{$style}} ${_}" when -f;
+        default {
+            carp "file doesn't actually exist";
+        }
+    }
 }
 
 sub seq {
