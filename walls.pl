@@ -200,8 +200,6 @@ sub seqdir {
     }
     while (!$RELOADCONF) {
         foreach my $image (@images) {
-            
-            
             my $path;
             for ($image) {
                 do {
@@ -226,22 +224,6 @@ sub seqdir {
     }
 }
 
-#sub seqdir {
-#    # FIXME: once again, what was i thinking
-#    my @images = dir2arr($config->{dir});
-#    (sub {
-#        foreach(@images) {
-#            my $image = $config->{dir} . "/$_";
-#            my $style = defined($config->{style}) ? 
-#                $config->{style} 
-#                : "centered";
-#            debugsay("$bgcommand ".$formats{$style}." $image");
-#            system "$bgcommand ".$formats{$style}." $image";
-#            mysleep($config->{sleep});
-#        }
-#    })->() while (1 and !$RELOADCONF) ;
-#
-#}
 sub random {
     # FIXME: This is /so bad/ probably the worst perl I've ever written.
     my $walls = $config->{walls};
