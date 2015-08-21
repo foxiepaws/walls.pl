@@ -106,6 +106,9 @@ sub mysleep {
         if ($NEXT == 1) {
             $NEXT = 0;
             return;
+        } elsif ($RELOADCONF) {
+            # return as immediately as we can. 
+            return;
         } else {
             sleep 1;
         }
