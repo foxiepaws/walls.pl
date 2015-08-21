@@ -214,29 +214,23 @@ sub randir {
 }
 
 
-daemonise() if ($config->{background} eq 1);
-
-
-
+daemonise() if (defined $config->{background} && $config->{background} eq 1);
 # our pidfile
 open my $fh, ">", $ENV{HOME}."/.walls.pid";
 print $fh $$;
 close $fh;
-
 while ( 1 ) {
     $config = YAML::LoadFile($ENV{HOME}."/.walls.conf");
     $RELOADCONF = 0;
-    given ($config->{mode}) {
-        single() when "single";
-        seq() when "seq";
-        seqdir() when "seqdir";
-        random() when "rand";
-        randir() when "randdir"
+    my $mode = $config->{mode};
+    for ($mode) {
+        single() when /^single$/;
+        seq() when /^seq$/;
+        seqdir() when /^seqdir$/;
+        random() when /^rand$/;
+        randir() when /^randdir$/;
     }
     # prevent feh from being called every 30 seconds if on single.
-    (sub {})->() while(!$RELOADCONF);
+    sleep .5 while(!$RELOADCONF);
 }
-
-
-1;
 # vim: set ts=4 sw=4 tw=0 et :
