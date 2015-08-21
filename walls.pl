@@ -77,10 +77,23 @@ sub debugsay {
     print shift."\n" if ($debug);
 }
 
+sub fix_path {
+    my $odir = shift;
+    if ($odir =~ /^~\//) {
+        $odir =~ s/^~/$ENV{HOME}/;
+        return $odir;
+    } elsif ($odir =~ /^~(?<user>\w)\//) {
+        ...;
+    } else {
+        return $odir;
+    }
+}
+
 sub dir2arr {
     my $dir = shift;
+    $dir = fix_path $dir;
     our @arr;
-    opendir (my $dh, $dir) or return undef;
+    opendir (my $dh, $dir) or return;
     @arr = grep { /\.(jpe?g|png|gif)/ } readdir $dh;
     close $dh;
     return @arr;
