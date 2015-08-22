@@ -117,28 +117,24 @@ sub mysleep {
 }
 
 sub single {
-    my ($image, $style);
+    my @walls = @{$config->{walls}};
+    my $image;
     for ($config->{select}) {
         do {
             # select a specific image from the list of walls based on
             # the toplevel config var "select". (0 indexed)
-            my @walls = @{$config->{walls}};
             $image = $walls[$_];
         } when $_ > -1;
         default {
             # randomly select an image from the list of walls.
-            my @walls = @{$config->{walls}};
             $image = $walls[rand @walls];
         }
     }
     # get which style we are going to use.
-    if (defined($image->{style})) {
-        $style = $image->{style};
-    } elsif (defined($config->{style})) {
-        $style = $config->{style};
-    } else {
-        $style = "centered";
-    }
+    my $style =
+        $image->{style}
+        // $config->{style}
+        // "centered";
     # fix the path using the above fix path implementation, and
     # display the image if it exists, or warn the user otherwise.
     for (fix_path $image->{file}) {
@@ -155,14 +151,10 @@ sub seq {
     # loop until reload conf is set
     while (!$RELOADCONF) {
         foreach my $image (@walls) {
-            my $style;
-            if (defined($image->{style})) {
-                $style = $image->{style};
-            } elsif (defined($config->{style})) {
-                $style = $config->{style};
-            } else {
-                $style = "centered";
-            }
+            my $style =
+                $image->{style}
+                // $config->{style}
+                // "centered";
             # figure out if we need to prepend all files
             my $path;
             for ($image->{file}) {
@@ -192,12 +184,9 @@ sub seq {
 
 sub seqdir {
     my @images = dir2arr($config->{dir});
-    my $style;
-    if (defined($config->{style})) {
-        $style = $config->{style};
-    } else {
-        $style = "centered";
-    }
+    my $style =
+        $config->{style}
+        // "centered";
     while (!$RELOADCONF) {
         foreach my $image (@images) {
             my $path;
