@@ -214,18 +214,33 @@ sub seqdir {
 }
 
 sub random {
-    # FIXME: This is /so bad/ probably the worst perl I've ever written.
-    my $walls = $config->{walls};
-    while ( 1 and !$RELOADCONF ) {
-        my $select = floor(rand(scalar @{$walls}));
-        my $image = $config->{walls}[$select]->{file};
-        $image = ( defined($config->{dir}) ? $config->{dir} : $ENV{HOME} ) . "/$image" if ($image =~ /^[^~\/]/);
-        my $style = defined($config->{walls}[$select]->{style}) ?
-            $config->{walls}[$select]->{style} 
-            : defined($config->{style}) ? 
-                $config->{style} 
-                : "centered";
-        system "$bgcommand ".$formats{$style}." $image";
+    my @walls = @{$config->{walls}};
+    while (!$RELOADCONF) {
+        my ($image, $style);
+        $image = @walls[rand @walls];
+        $style =
+            $image->{style}
+            //$config->{style}
+            // "centered";
+        debugsay "\$style = ${style}";
+        my $path;
+        for ($image->{file}) {
+            do {
+                # image isn't an absolute path nor does it point to
+                # at the home directory, and config has a dir setting
+                $path = fix_path $config->{dir} . "/" . $_;
+            } when /^[^~\/]/ and defined($config->{dir});
+            default {
+                $path = fix_path $_;
+            }
+        }
+        # actually try to display the image
+        for ($path) {
+            system "${bgcommand} ${formats{$style}} ${_}" when -f;
+            default {
+                carp "file doesn't actually exist";
+            }
+        }
         mysleep($config->{sleep});
     }
 }
