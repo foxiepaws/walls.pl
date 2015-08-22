@@ -217,7 +217,7 @@ sub random {
     my @walls = @{$config->{walls}};
     while (!$RELOADCONF) {
         my ($image, $style);
-        $image = @walls[rand @walls];
+        $image = $walls[rand @walls];
         $style =
             $image->{style}
             //$config->{style}
