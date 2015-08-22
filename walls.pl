@@ -246,16 +246,28 @@ sub random {
 }
 
 sub randir {
-    # FIXME: Also really bad
     my @images = dir2arr($config->{dir});
-    while ( 1 and !$RELOADCONF ) {
-        my $select = floor(rand(scalar @images));
-        my $image = $config->{dir} . "/". $images[$select];
-        my $style = defined($config->{style}) ? 
-            $config->{style} 
-            : "centered";
-
-        system "$bgcommand ".$formats{$style}." $image";
+    my $style = $config->{style} // "centered";
+    while (!$RELOADCONF) {
+        my $image = $images[rand @images];
+        my $path;
+        for ($image) {
+            do {
+                # image isn't an absolute path nor does it point to
+                # at the home directory, and config has a dir setting
+                $path = fix_path $config->{dir} . "/" . $_;
+            } when /^[^~\/]/ and defined($config->{dir});
+            default {
+                $path = fix_path $_;
+            }
+        }
+        # actually try to display the image
+        for ($path) {
+            system "${bgcommand} ${formats{$style}} ${_}" when -f;
+            default {
+                carp "file doesn't actually exist";
+            }
+        }
         mysleep($config->{sleep});
     }
 }
